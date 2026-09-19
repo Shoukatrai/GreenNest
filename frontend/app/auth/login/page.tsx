@@ -1,25 +1,24 @@
 "use client";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Leaf, Mail, Lock, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
+import { showtoast } from "@/utils/toast";
+import Cookies from "js-cookie";
 
 const Page = () => {
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const { register, handleSubmit } = useForm({
+  const { register, handleSubmit, reset } = useForm({
     defaultValues: {
       email: "",
       password: "",
     },
   });
   const handleLogin = async (data: any) => {
-    setError("");
     setLoading(true);
 
     try {
@@ -28,12 +27,18 @@ const Page = () => {
         data,
       );
       console.log("response", response.data);
+      reset();
+      showtoast(response.data.message, "success");
+      Cookies.set("token", response.data.token, { path: "/" });
       setLoading(false);
       router.push("/");
     } catch (err: any) {
-      setError(err.message || "Something went wrong");
-      setLoading(false);
+      showtoast(
+        err.response?.data?.message || err.message || "Something went wrong",
+        "error",
+      );
     }
+    setLoading(false);
   };
 
   return (
@@ -50,12 +55,6 @@ const Page = () => {
             Please sign in to your account
           </p>
         </div>
-
-        {error && (
-          <div className="mb-4 p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">
-            {error}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit(handleLogin)} className="space-y-4">
           <div>

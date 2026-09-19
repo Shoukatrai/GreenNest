@@ -11,7 +11,6 @@ import { showtoast } from "@/utils/toast";
 const Page = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const { register, handleSubmit } = useForm({
     defaultValues: {
@@ -26,7 +25,6 @@ const Page = () => {
     email: string;
     password: string;
   }) => {
-    setError("");
     setLoading(true);
 
     try {
@@ -37,15 +35,14 @@ const Page = () => {
 
       console.log("response", response.data);
       setLoading(false);
-      showtoast("Account created successfully! Please log in.", "success");
+      showtoast(response.data.message, "success");
       router.push("/auth/login");
     } catch (err: any) {
       // Backend ka exact error message extract karne ke liye
       const errorMessage =
         err.response?.data?.message || err.message || "Something went wrong";
 
-      setError(errorMessage);
-      showtoast("Failed to create account.", "error");
+      showtoast(errorMessage, "error");
     } finally {
       setLoading(false);
     }
@@ -65,12 +62,6 @@ const Page = () => {
             Join our green community today
           </p>
         </div>
-
-        {error && (
-          <div className="mb-4 p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">
-            {error}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit(handleSignup)} className="space-y-4">
           <div>
