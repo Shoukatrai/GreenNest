@@ -1,11 +1,26 @@
-import React from 'react'
+import Navbar from "@/components/Navbar";
+import Hero from "@/components/Hero";
+import Categories from "@/components/Categories";
+import FeaturedProducts from "@/components/Products"; // ya FeaturedProducts
+import WhyChooseUs from "@/components/WhyChooseUs";
+import Testimonials from "@/components/Testimonials";
+import Footer from "@/components/Footer";
+import React from "react";
 
-const page = () => {
+const Page = () => {
   return (
-    <div>
-      <h1>Welcome to the Home Page</h1>
+    <div className="min-h-screen flex flex-col bg-white">
+      <Navbar />
+      <main className="flex-grow">
+        <Hero />
+        <Categories />
+        <FeaturedProducts />
+        <WhyChooseUs />
+        <Testimonials />
+      <Footer />
+      </main>
     </div>
-  )
-}
+  );
+};
 
-export default page
+export default Page;
