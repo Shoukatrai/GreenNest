@@ -4,20 +4,48 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Leaf, Mail, Lock, User, Loader2 } from "lucide-react";
-const page = () => {
+import { useForm } from "react-hook-form";
+import axios from "axios";
+import { showtoast } from "@/utils/toast";
+
+const Page = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const { register, handleSubmit } = useForm({
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+  });
+
+  const handleSignup = async (data: {
+    name: string;
+    email: string;
+    password: string;
+  }) => {
     setError("");
     setLoading(true);
 
     try {
-      router.push("/login");
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/signup`,
+        data,
+      );
+
+      console.log("response", response.data);
+      setLoading(false);
+      showtoast("Account created successfully! Please log in.", "success");
+      router.push("/auth/login");
     } catch (err: any) {
-      setError(err.message || "Something went wrong");
+      // Backend ka exact error message extract karne ke liye
+      const errorMessage =
+        err.response?.data?.message || err.message || "Something went wrong";
+
+      setError(errorMessage);
+      showtoast("Failed to create account.", "error");
     } finally {
       setLoading(false);
     }
@@ -44,7 +72,7 @@ const page = () => {
           </div>
         )}
 
-        <form onSubmit={handleSignup} className="space-y-4">
+        <form onSubmit={handleSubmit(handleSignup)} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Full Name
@@ -56,6 +84,7 @@ const page = () => {
               <input
                 type="text"
                 required
+                {...register("name")}
                 placeholder="John Doe"
                 className="w-full text-gray-900 pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
               />
@@ -74,6 +103,7 @@ const page = () => {
                 type="email"
                 required
                 placeholder="name@example.com"
+                {...register("email")}
                 className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none text-gray-900 focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
               />
             </div>
@@ -91,6 +121,7 @@ const page = () => {
                 type="password"
                 required
                 placeholder="••••••••"
+                {...register("password")}
                 className="w-full text-gray-900 pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
               />
             </div>
@@ -119,4 +150,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;
